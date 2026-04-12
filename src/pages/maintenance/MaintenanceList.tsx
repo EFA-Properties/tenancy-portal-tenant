@@ -1,49 +1,64 @@
-import React from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import React, { useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
+import { useTenancies } from '../../hooks/useTenancies'
 import { useMaintenanceRequests } from '../../hooks/useMaintenanceRequests'
-import { Card, CardBody } from '../../components/ui/Card'
+import { Card, CardBody, CardHeader } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Badge } from '../../components/ui/Badge'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell } from '../../components/ui/Table'
 
 export default function MaintenanceList() {
-  const [searchParams] = useSearchParams()
-  const tenancyId = searchParams.get('tenancy_id')
-  const { data: requests = [], isLoading } = useMaintenanceRequests(tenancyId || undefined)
+  const { user } = useAuth()
+  const { data: tenancies } = useTenancies()
+
+  // Get the first active tenancy
+  const activeTenancy = useMemo(
+    () => tenancies?.find((t) => t.status === 'active') || tenancies?.[0],
+    [tenancies]
+  )
+
+  const { data: requests = [], isLoading } = useMaintenanceRequests(activeTenancy?.id)
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-abode-teal" />
       </div>
     )
   }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'destructive'
-      case 'high': return 'destructive'
-      case 'medium': return 'secondary'
-      default: return 'outline'
+      case 'urgent':
+      case 'high':
+        return 'destructive'
+      case 'medium':
+        return 'secondary'
+      default:
+        return 'outline'
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'open':
-      case 'in_progress': return 'secondary'
-      case 'resolved': return 'default'
-      case 'closed': return 'outline'
-      default: return 'outline'
+      case 'in_progress':
+        return 'secondary'
+      case 'resolved':
+        return 'success'
+      case 'closed':
+        return 'outline'
+      default:
+        return 'outline'
     }
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-fraunces font-bold text-slate-900 mb-8">
-        Maintenance Requests
-      </h1>
+    <div className="space-y-4">
+      <h2 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+        Maintenance
+      </h2>
 
       {requests.length === 0 ? (
         <Card>
@@ -51,47 +66,52 @@ export default function MaintenanceList() {
             <EmptyState
               title="No maintenance requests"
               description="Your property is in good shape! Report an issue if you need maintenance."
+              action={{
+                label: 'Report an Issue',
+                onClick: () => (window.location.href = '/maintenance/new'),
+              }}
             />
           </CardBody>
         </Card>
       ) : (
         <Card>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Title</TableHeader>
-                <TableHeader>Priority</TableHeader>
-                <TableHeader>Status</TableHeader>
-                <TableHeader>Reported</TableHeader>
-                <TableHeader>Action</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {requests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell className="font-medium">{request.title}</TableCell>
-                  <TableCell>
-                    <Badge variant={getPriorityColor(request.priority)}>
-                      {request.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusColor(request.status)}>
-                      {request.status.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Link to={`/maintenance/${request.id}`}>
-                      <Button variant="ghost" size="sm">
-                        View
-                      </Button>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <CardBody className="space-y-3">
+            {requests.map((request, idx) => (
+              <div
+                key={request.id}
+                className={`py-3 ${
+                  idx < requests.length - 1 ? 'border-b border-abode-border' : ''
+                }`}
+              >
+                <div className="flex items-start gap-3 mb-2">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-abode-text">
+                      {request.title}
+                    </p>
+                    <p className="text-xs text-abode-text3 mt-1">
+                      Reported{' '}
+                      {new Date(request.created_at).toLocaleDateString(
+                        'en-GB'
+                      )}
+                    </p>
+                  </div>
+                  <Link to={`/maintenance/${request.id}`}>
+                    <Button variant="ghost" size="sm">
+                      View
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  <Badge variant={getPriorityColor(request.priority)}>
+                    {request.priority}
+                  </Badge>
+                  <Badge variant={getStatusColor(request.status)}>
+                    {request.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </CardBody>
         </Card>
       )}
     </div>

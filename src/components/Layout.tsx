@@ -1,111 +1,145 @@
-import React, { useState } from 'react'
+import React, { useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, LogOut } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function HomeIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M2 10l8-8 8 8M4 9v8c0 .553.447 1 1 1h10c.553 0 1-.447 1-1V9" />
+    </svg>
+  )
+}
+
+function DocumentIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M4 3h10v14H4V3M8 7h4M8 11h4M8 15h2" />
+    </svg>
+  )
+}
+
+function MaintenanceIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M3 14l2-2M6 14l6-6M12 14l2-2M4 7.5l2-2 4 4" />
+    </svg>
+  )
+}
+
+function RentIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M10 2c4.418 0 8 1.791 8 4v8c0 2.209-3.582 4-8 4s-8-1.791-8-4V6c0-2.209 3.582-4 8-4M2 6c0 2.209 3.582 4 8 4s8-1.791 8-4M2 10c0 2.209 3.582 4 8 4s8-1.791 8-4" />
+    </svg>
+  )
+}
+
+function ProfileIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M10 10c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3M4 18c0-2.209 2.686-4 6-4s6 1.791 6 4" />
+    </svg>
+  )
+}
+
 export function Layout({ children }: LayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user, logout } = useAuth()
   const location = useLocation()
 
-  const navigationItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { label: 'Tenancies', href: '/tenancies', icon: '📋' },
-    { label: 'Documents', href: '/documents', icon: '📄' },
-    { label: 'Maintenance', href: '/maintenance', icon: '🔧' },
-    { label: 'Settings', href: '/settings', icon: '⚙️' },
-  ]
+  const tabs = useMemo(
+    () => [
+      { id: 'home', label: 'Home', href: '/home', icon: HomeIcon },
+      { id: 'documents', label: 'Documents', href: '/documents', icon: DocumentIcon },
+      { id: 'maintenance', label: 'Maintenance', href: '/maintenance', icon: MaintenanceIcon },
+      { id: 'rent', label: 'Rent', href: '/rent', icon: RentIcon },
+      { id: 'profile', label: 'Profile', href: '/profile', icon: ProfileIcon },
+    ],
+    []
+  )
 
-  const isActive = (href: string) => location.pathname === href
+  const activeTab = useMemo(() => {
+    return tabs.find((tab) => location.pathname.startsWith(tab.href))?.id || 'home'
+  }, [location.pathname, tabs])
+
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Guest'
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform lg:relative lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="px-6 py-4 border-b border-slate-200">
-            <h1 className="text-xl font-fraunces font-bold text-slate-900">
-              Tenant Portal
-            </h1>
+    <div className="flex flex-col h-screen bg-abode-bg overflow-hidden">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-40 bg-abode-bg2 border-b border-abode-border px-4 py-3 shrink-0">
+        {/* Logo and greeting */}
+        <div className="max-w-[430px] mx-auto">
+          <div className="flex items-center gap-2 mb-3">
+            {/* Logo - teal square with house icon */}
+            <div className="w-8 h-8 bg-abode-teal rounded flex items-center justify-center shrink-0">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.5">
+                <path d="M2 9l7-7 7 7M4 8v7c0 .5.5 1 1 1h8c.5 0 1-.5 1-1V8" />
+              </svg>
+            </div>
+            <span className="text-sm font-instrument text-abode-text font-semibold">Tenancy Portal</span>
           </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6">
-            <ul className="space-y-2">
-              {navigationItems.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    to={item.href}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                      isActive(item.href)
-                        ? 'bg-blue-50 text-blue-600 font-semibold'
-                        : 'text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    <span className="text-xl">{item.icon}</span>
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* User info and logout */}
-          <div className="border-t border-slate-200 px-4 py-4">
-            {user && (
-              <div className="mb-4 text-sm">
-                <p className="text-slate-600">Signed in as</p>
-                <p className="font-medium text-slate-900 truncate">
-                  {user.email}
-                </p>
-              </div>
-            )}
-            <button
-              onClick={logout}
-              className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
-            >
-              <LogOut size={16} />
-              Sign Out
-            </button>
-          </div>
+          <p className="font-instrument italic text-abode-text text-sm mb-1">
+            {getGreeting()}, {firstName}
+          </p>
+          <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1.5px]">
+            Your home dashboard
+          </p>
         </div>
-      </aside>
+      </header>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden text-slate-600 hover:text-slate-900"
-          >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <div className="flex-1" />
-        </header>
+      {/* Scrollable Content Area */}
+      <main className="flex-1 overflow-y-auto px-4 pb-24 pt-4 scroll-area">
+        <div className="max-w-[430px] mx-auto">
+          {children}
+        </div>
+      </main>
 
-        {/* Content */}
-        <main className="flex-1 overflow-auto">
-          <div className="p-6">{children}</div>
-        </main>
+      {/* Sticky Bottom Navigation */}
+      <nav className="sticky bottom-0 z-40 bg-abode-bg2 border-t border-abode-border px-4 py-2 shrink-0">
+        <div className="max-w-[430px] mx-auto flex items-center justify-around gap-1">
+          {tabs.map((tab) => {
+            const TabIcon = tab.icon
+            const isActive = activeTab === tab.id
+            return (
+              <Link
+                key={tab.id}
+                to={tab.href}
+                className={`flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-colors flex-1 ${
+                  isActive
+                    ? 'text-abode-teal bg-abode-teal-light'
+                    : 'text-abode-text2 hover:text-abode-text'
+                }`}
+              >
+                <TabIcon />
+                <span className="text-xs font-mono font-medium tracking-[0.5px]">
+                  {tab.label}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+
+      {/* User menu button (floating, top-right) */}
+      <div className="fixed top-4 right-4 z-30">
+        <button
+          onClick={logout}
+          className="text-abode-text3 hover:text-abode-text text-xs font-mono uppercase tracking-[1px] transition-colors p-2"
+          title="Sign out"
+        >
+          Exit
+        </button>
       </div>
     </div>
   )

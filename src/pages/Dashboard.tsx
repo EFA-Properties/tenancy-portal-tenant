@@ -1,84 +1,311 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { useDashboardStats } from '../hooks/useDashboardStats'
-import { Card, CardBody } from '../components/ui/Card'
+import { useAuth } from '../contexts/AuthContext'
+import { useTenancies } from '../hooks/useTenancies'
+import { useDocuments } from '../hooks/useDocuments'
+import { useMaintenanceRequests } from '../hooks/useMaintenanceRequests'
+import { useProperty } from '../hooks/useProperties'
+import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 
 export default function Dashboard() {
-  const { data: stats, isLoading } = useDashboardStats()
+  const { user } = useAuth()
+  const { data: tenancies, isLoading: tenanciesLoading } = useTenancies()
 
-  const statCards = [
-    { label: 'Active Tenancies', value: stats?.activeTenancies ?? 0 },
-    { label: 'Total Tenancies', value: stats?.totalTenancies ?? 0 },
-    { label: 'Pending Requests', value: stats?.pendingRequests ?? 0 },
-    { label: 'Overdue Alerts', value: stats?.overdueAlerts ?? 0 },
-  ]
+  // Get the first active tenancy (tenant perspective)
+  const activeTenancy = useMemo(
+    () => tenancies?.find((t) => t.status === 'active') || tenancies?.[0],
+    [tenancies]
+  )
 
-  return (
-    <div>
-      <h1 className="text-3xl font-fraunces font-bold text-slate-900 mb-8">
-        Dashboard
-      </h1>
+  // Fetch property, documents, and maintenance for the active tenancy
+  const { data: property } = useProperty(activeTenancy?.property_id)
+  const { data: documents, isLoading: docsLoading } = useDocuments(
+    activeTenancy?.id
+  )
+  const { data: maintenance, isLoading: maintenanceLoading } =
+    useMaintenanceRequests(activeTenancy?.id)
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statCards.map((stat) => (
-          <Card key={stat.label}>
-            <CardBody>
-              <p className="text-slate-600 text-sm font-medium mb-2">
-                {stat.label}
-              </p>
-              <p className="text-4xl font-bold text-slate-900">
-                {isLoading ? '-' : stat.value}
-              </p>
-            </CardBody>
-          </Card>
-        ))}
+  // Check if any documents are awaiting acknowledgement
+  const documentsAwaitingAck = documents?.filter(
+    (d) => d.type === 'lease_agreement'
+  ) // Assuming lease agreements need ack
+
+  // Format dates
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return '-'
+    return new Date(dateStr).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    })
+  }
+
+  // Status pill helper
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed':
+      case 'resolved':
+        return 'bg-abode-green/10 text-abode-green border border-abode-green'
+      case 'awaiting':
+      case 'open':
+        return 'bg-abode-amber/10 text-abode-amber border border-abode-amber'
+      case 'overdue':
+        return 'bg-abode-red/10 text-abode-red border border-abode-red'
+      default:
+        return 'bg-abode-bg3 text-abode-text2 border border-abode-border'
+    }
+  }
+
+  const getMaintStatusDot = (status: string) => {
+    switch (status) {
+      case 'resolved':
+        return '#2d7a4f'
+      case 'in_progress':
+        return '#b45309'
+      case 'open':
+        return '#a8a099'
+      default:
+        return '#a8a099'
+    }
+  }
+
+  if (tenanciesLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-abode-text3">Loading your home...</p>
       </div>
+    )
+  }
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+  if (!activeTenancy || !property) {
+    return (
+      <div className="space-y-4">
         <Card>
           <CardBody>
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-              Quick Actions
-            </h3>
-            <div className="space-y-2">
-              <Link to="/tenancies/new">
-                <Button variant="outline" className="w-full justify-start">
-                  Add Tenancy
-                </Button>
-              </Link>
-              <Link to="/documents/upload">
-                <Button variant="outline" className="w-full justify-start">
-                  Upload Document
-                </Button>
-              </Link>
-              <Link to="/maintenance/new">
-                <Button variant="outline" className="w-full justify-start">
-                  Report Maintenance
-                </Button>
-              </Link>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card className="md:col-span-2">
-          <CardBody>
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-              Getting Started
-            </h3>
-            <p className="text-slate-600 mb-4">
-              Welcome to your Tenant Portal. Here you can manage your tenancies,
-              view documents, report maintenance issues, and more.
+            <p className="text-abode-text2">
+              No active tenancy found. Please contact support.
             </p>
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li>• View and manage your active tenancies</li>
-              <li>• Access important documents and agreements</li>
-              <li>• Report and track maintenance requests</li>
-              <li>• Stay updated with compliance alerts</li>
-            </ul>
           </CardBody>
         </Card>
       </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4 pb-4">
+      {/* Action Required Section */}
+      {documentsAwaitingAck && documentsAwaitingAck.length > 0 && (
+        <Card className="border-l-4 border-l-abode-amber">
+          <CardHeader className="bg-abode-amber/5 border-b border-abode-border">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-abode-amber" />
+              <h3 className="font-instrument text-sm font-semibold text-abode-text">
+                Action Required
+              </h3>
+            </div>
+          </CardHeader>
+          <CardBody className="space-y-3">
+            {documentsAwaitingAck.map((doc) => (
+              <div key={doc.id}>
+                <p className="text-sm font-medium text-abode-text mb-1">
+                  {doc.name}
+                </p>
+                <p className="text-xs text-abode-text2 mb-3">
+                  Please review and confirm you have received this document.
+                </p>
+                <Button variant="default" size="sm" className="w-full">
+                  I confirm I have received this document
+                </Button>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Your Home Section */}
+      <Card>
+        <CardHeader className="bg-gradient-to-r from-abode-teal to-abode-teal/80 text-white border-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-mono uppercase tracking-[1px] opacity-90">
+              {property.property_type}
+            </span>
+          </div>
+          <h2 className="font-instrument text-lg font-semibold">
+            {property.address}
+          </h2>
+          <p className="text-sm opacity-90">{property.postcode}</p>
+        </CardHeader>
+        <CardBody>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+                Monthly Rent
+              </p>
+              <p className="font-instrument text-2xl font-semibold text-abode-text">
+                £{activeTenancy.monthly_rent.toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+                Move-In Date
+              </p>
+              <p className="text-sm font-medium text-abode-text">
+                {formatDate(activeTenancy.start_date)}
+              </p>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Rent Section */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+            Rent Payment
+          </h3>
+        </CardHeader>
+        <CardBody className="space-y-4">
+          <div className="flex items-baseline justify-between">
+            <span className="text-abode-text2">Amount due</span>
+            <span className="font-instrument text-3xl font-semibold text-abode-text">
+              £{activeTenancy.monthly_rent}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-abode-text2">Payment status</span>
+            <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-abode-green/10 text-abode-green border border-abode-green">
+              Up to date
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-abode-border">
+            <div>
+              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+                Deposit
+              </p>
+              <p className="font-medium text-abode-text">
+                £{activeTenancy.monthly_rent * 5}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+                Next due
+              </p>
+              <p className="font-medium text-abode-text">
+                {formatDate(
+                  new Date(activeTenancy.start_date).toISOString()
+                )}
+              </p>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Documents Section */}
+      {documents && documents.length > 0 && (
+        <Card>
+          <CardHeader>
+            <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+              Documents
+            </h3>
+          </CardHeader>
+          <CardBody className="space-y-3">
+            {documents.slice(0, 3).map((doc) => (
+              <div key={doc.id} className="flex items-center gap-3 pb-3 border-b border-abode-border last:border-b-0">
+                <div className="w-8 h-8 rounded bg-abode-bg3 flex items-center justify-center flex-shrink-0">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="text-abode-text2"
+                  >
+                    <path d="M2 2h8v12H2V2M6 5h4M6 8h4M6 11h2" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-abode-text truncate">
+                    {doc.name}
+                  </p>
+                  <p className="text-xs text-abode-text3">
+                    {formatDate(doc.created_at)}
+                  </p>
+                </div>
+                <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-abode-bg3 text-abode-text2 border border-abode-border flex-shrink-0">
+                  Read
+                </span>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Maintenance Section */}
+      {maintenance && maintenance.length > 0 && (
+        <Card>
+          <CardHeader>
+            <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+              Maintenance
+            </h3>
+          </CardHeader>
+          <CardBody className="space-y-3">
+            {maintenance.slice(0, 3).map((req) => (
+              <div key={req.id} className="flex gap-3 pb-3 border-b border-abode-border last:border-b-0">
+                <div className="flex-shrink-0 pt-1">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: getMaintStatusDot(req.status) }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-abode-text">
+                    {req.title}
+                  </p>
+                  <p className="text-xs text-abode-text3 mt-1">
+                    Reported {formatDate(req.created_at)}
+                  </p>
+                </div>
+                <span
+                  className={`text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full flex-shrink-0 ${getStatusColor(
+                    req.status
+                  )}`}
+                >
+                  {req.status === 'in_progress' ? 'In Progress' : req.status}
+                </span>
+              </div>
+            ))}
+            <Link to="/maintenance">
+              <Button
+                variant="outline"
+                className="w-full mt-2 border-dashed text-abode-text2 hover:text-abode-text"
+              >
+                Report a new issue
+              </Button>
+            </Link>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Empty state for maintenance */}
+      {(!maintenance || maintenance.length === 0) && (
+        <Card>
+          <CardBody className="text-center py-6">
+            <p className="text-sm text-abode-text2 mb-3">
+              No maintenance issues reported
+            </p>
+            <Link to="/maintenance">
+              <Button
+                variant="outline"
+                className="w-full border-dashed text-abode-text2 hover:text-abode-text"
+              >
+                Report a maintenance issue
+              </Button>
+            </Link>
+          </CardBody>
+        </Card>
+      )}
     </div>
   )
 }

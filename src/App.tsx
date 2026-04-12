@@ -6,20 +6,9 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
-import TenanciesList from './pages/tenancies/TenanciesList'
-import TenancyDetail from './pages/tenancies/TenancyDetail'
-import AddTenancy from './pages/tenancies/AddTenancy'
 import DocumentsList from './pages/documents/DocumentsList'
-import UploadDocument from './pages/documents/UploadDocument'
 import MaintenanceList from './pages/maintenance/MaintenanceList'
 import MaintenanceDetail from './pages/maintenance/MaintenanceDetail'
-import PropertiesList from './pages/properties/PropertiesList'
-import PropertyDetail from './pages/properties/PropertyDetail'
-import AddProperty from './pages/properties/AddProperty'
-import TenantsList from './pages/tenants/TenantsList'
-import TenantDetail from './pages/tenants/TenantDetail'
-import InviteTenant from './pages/tenants/InviteTenant'
-import ComplianceAlerts from './pages/compliance/ComplianceAlerts'
 
 export default function App() {
   return (
@@ -28,8 +17,9 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Tenant Home - Dashboard */}
         <Route
-          path="/dashboard"
+          path="/home"
           element={
             <ProtectedRoute>
               <Layout>
@@ -39,68 +29,7 @@ export default function App() {
           }
         />
 
-        <Route
-          path="/tenancies"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <TenanciesList />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tenancies/:id"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <TenancyDetail />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tenancies/new"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AddTenancy />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/properties"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <PropertiesList />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/properties/:id"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <PropertyDetail />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/properties/new"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AddProperty />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
+        {/* Documents */}
         <Route
           path="/documents"
           element={
@@ -111,17 +40,8 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/documents/upload"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <UploadDocument />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
 
+        {/* Maintenance */}
         <Route
           path="/maintenance"
           element={
@@ -143,50 +63,21 @@ export default function App() {
           }
         />
 
+        {/* Rent details page - TODO */}
         <Route
-          path="/tenants"
+          path="/rent"
           element={
             <ProtectedRoute>
               <Layout>
-                <TenantsList />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tenants/:id"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <TenantDetail />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tenants/invite"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <InviteTenant />
+                <div className="text-abode-text">Rent details coming soon</div>
               </Layout>
             </ProtectedRoute>
           }
         />
 
+        {/* Profile / Settings */}
         <Route
-          path="/compliance"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <ComplianceAlerts />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/settings"
+          path="/profile"
           element={
             <ProtectedRoute>
               <Layout>
@@ -196,7 +87,11 @@ export default function App() {
           }
         />
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* Redirect home to default tenant view */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
+
+        {/* Catch-all for old routes - redirect to home */}
+        <Route path="/*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
   )
