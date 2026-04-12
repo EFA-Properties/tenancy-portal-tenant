@@ -69,7 +69,7 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Layout>
-                <div className="text-abode-text">Rent details coming soon</div>
+                <div className="text-slate-900">Rent details coming soon</div>
               </Layout>
             </ProtectedRoute>
           }

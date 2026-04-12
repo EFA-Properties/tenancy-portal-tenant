@@ -75,24 +75,24 @@ export function Layout({ children }: LayoutProps) {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'Guest'
 
   return (
-    <div className="flex flex-col h-screen bg-abode-bg overflow-hidden">
+    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-abode-bg2 border-b border-abode-border px-4 py-3 shrink-0">
+      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-4 py-3 shrink-0">
         {/* Logo and greeting */}
         <div className="max-w-[430px] mx-auto">
           <div className="flex items-center gap-2 mb-3">
-            {/* Logo - teal square with house icon */}
-            <div className="w-8 h-8 bg-abode-teal rounded flex items-center justify-center shrink-0">
+            {/* Logo - blue square with house icon */}
+            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center shrink-0">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.5">
                 <path d="M2 9l7-7 7 7M4 8v7c0 .5.5 1 1 1h8c.5 0 1-.5 1-1V8" />
               </svg>
             </div>
-            <span className="text-sm font-instrument text-abode-text font-semibold">Tenancy Portal</span>
+            <span className="text-sm font-fraunces text-slate-900 font-semibold">Tenancy Portal</span>
           </div>
-          <p className="font-instrument italic text-abode-text text-sm mb-1">
+          <p className="font-fraunces italic text-slate-900 text-sm mb-1">
             {getGreeting()}, {firstName}
           </p>
-          <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1.5px]">
+          <p className="text-xs text-slate-400 font-mono uppercase tracking-[1.5px]">
             Your home dashboard
           </p>
         </div>
@@ -106,7 +106,7 @@ export function Layout({ children }: LayoutProps) {
       </main>
 
       {/* Sticky Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 bg-abode-bg2 border-t border-abode-border px-4 py-2 shrink-0">
+      <nav className="sticky bottom-0 z-40 bg-white border-t border-slate-200 px-4 py-2 shrink-0">
         <div className="max-w-[430px] mx-auto flex items-center justify-around gap-1">
           {tabs.map((tab) => {
             const TabIcon = tab.icon
@@ -117,8 +117,8 @@ export function Layout({ children }: LayoutProps) {
                 to={tab.href}
                 className={`flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-lg transition-colors flex-1 ${
                   isActive
-                    ? 'text-abode-teal bg-abode-teal-light'
-                    : 'text-abode-text2 hover:text-abode-text'
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 <TabIcon />
@@ -135,7 +135,7 @@ export function Layout({ children }: LayoutProps) {
       <div className="fixed top-4 right-4 z-30">
         <button
           onClick={logout}
-          className="text-abode-text3 hover:text-abode-text text-xs font-mono uppercase tracking-[1px] transition-colors p-2"
+          className="text-slate-400 hover:text-slate-900 text-xs font-mono uppercase tracking-[1px] transition-colors p-2"
           title="Sign out"
         >
           Exit

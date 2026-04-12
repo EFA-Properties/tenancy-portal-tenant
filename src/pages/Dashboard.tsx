@@ -46,34 +46,34 @@ export default function Dashboard() {
     switch (status) {
       case 'confirmed':
       case 'resolved':
-        return 'bg-abode-green/10 text-abode-green border border-abode-green'
+        return 'bg-green-50 text-green-600 border border-green-200'
       case 'awaiting':
       case 'open':
-        return 'bg-abode-amber/10 text-abode-amber border border-abode-amber'
+        return 'bg-amber-50 text-amber-600 border border-amber-200'
       case 'overdue':
-        return 'bg-abode-red/10 text-abode-red border border-abode-red'
+        return 'bg-red-50 text-red-600 border border-red-200'
       default:
-        return 'bg-abode-bg3 text-abode-text2 border border-abode-border'
+        return 'bg-slate-100 text-slate-500 border border-slate-200'
     }
   }
 
   const getMaintStatusDot = (status: string) => {
     switch (status) {
       case 'resolved':
-        return '#2d7a4f'
+        return '#16a34a'
       case 'in_progress':
-        return '#b45309'
+        return '#f59e0b'
       case 'open':
-        return '#a8a099'
+        return '#cbd5e1'
       default:
-        return '#a8a099'
+        return '#cbd5e1'
     }
   }
 
   if (tenanciesLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-abode-text3">Loading your home...</p>
+        <p className="text-slate-400">Loading your home...</p>
       </div>
     )
   }
@@ -83,7 +83,7 @@ export default function Dashboard() {
       <div className="space-y-4">
         <Card>
           <CardBody>
-            <p className="text-abode-text2">
+            <p className="text-slate-500">
               No active tenancy found. Please contact support.
             </p>
           </CardBody>
@@ -96,11 +96,11 @@ export default function Dashboard() {
     <div className="space-y-4 pb-4">
       {/* Action Required Section */}
       {documentsAwaitingAck && documentsAwaitingAck.length > 0 && (
-        <Card className="border-l-4 border-l-abode-amber">
-          <CardHeader className="bg-abode-amber/5 border-b border-abode-border">
+        <Card className="border-l-4 border-l-amber-500">
+          <CardHeader className="bg-amber-50 border-b border-slate-200">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-abode-amber" />
-              <h3 className="font-instrument text-sm font-semibold text-abode-text">
+              <div className="w-2 h-2 rounded-full bg-amber-500" />
+              <h3 className="font-fraunces text-sm font-semibold text-slate-900">
                 Action Required
               </h3>
             </div>
@@ -108,10 +108,10 @@ export default function Dashboard() {
           <CardBody className="space-y-3">
             {documentsAwaitingAck.map((doc) => (
               <div key={doc.id}>
-                <p className="text-sm font-medium text-abode-text mb-1">
+                <p className="text-sm font-medium text-slate-900 mb-1">
                   {doc.name}
                 </p>
-                <p className="text-xs text-abode-text2 mb-3">
+                <p className="text-xs text-slate-500 mb-3">
                   Please review and confirm you have received this document.
                 </p>
                 <Button variant="default" size="sm" className="w-full">
@@ -125,13 +125,13 @@ export default function Dashboard() {
 
       {/* Your Home Section */}
       <Card>
-        <CardHeader className="bg-gradient-to-r from-abode-teal to-abode-teal/80 text-white border-0">
+        <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-500 text-white border-0">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-mono uppercase tracking-[1px] opacity-90">
               {property.property_type}
             </span>
           </div>
-          <h2 className="font-instrument text-lg font-semibold">
+          <h2 className="font-fraunces text-lg font-semibold">
             {property.address}
           </h2>
           <p className="text-sm opacity-90">{property.postcode}</p>
@@ -139,18 +139,18 @@ export default function Dashboard() {
         <CardBody>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
                 Monthly Rent
               </p>
-              <p className="font-instrument text-2xl font-semibold text-abode-text">
+              <p className="font-fraunces text-2xl font-semibold text-slate-900">
                 £{activeTenancy.monthly_rent.toLocaleString()}
               </p>
             </div>
             <div>
-              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
                 Move-In Date
               </p>
-              <p className="text-sm font-medium text-abode-text">
+              <p className="text-sm font-medium text-slate-900">
                 {formatDate(activeTenancy.start_date)}
               </p>
             </div>
@@ -161,37 +161,37 @@ export default function Dashboard() {
       {/* Rent Section */}
       <Card>
         <CardHeader>
-          <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+          <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
             Rent Payment
           </h3>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="flex items-baseline justify-between">
-            <span className="text-abode-text2">Amount due</span>
-            <span className="font-instrument text-3xl font-semibold text-abode-text">
+            <span className="text-slate-500">Amount due</span>
+            <span className="font-fraunces text-3xl font-semibold text-slate-900">
               £{activeTenancy.monthly_rent}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-abode-text2">Payment status</span>
-            <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-abode-green/10 text-abode-green border border-abode-green">
+            <span className="text-sm text-slate-500">Payment status</span>
+            <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
               Up to date
             </span>
           </div>
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-abode-border">
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
             <div>
-              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
                 Deposit
               </p>
-              <p className="font-medium text-abode-text">
+              <p className="font-medium text-slate-900">
                 £{activeTenancy.monthly_rent * 5}
               </p>
             </div>
             <div>
-              <p className="text-xs text-abode-text3 font-mono uppercase tracking-[1px] mb-1">
+              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
                 Next due
               </p>
-              <p className="font-medium text-abode-text">
+              <p className="font-medium text-slate-900">
                 {formatDate(
                   new Date(activeTenancy.start_date).toISOString()
                 )}
@@ -205,14 +205,14 @@ export default function Dashboard() {
       {documents && documents.length > 0 && (
         <Card>
           <CardHeader>
-            <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+            <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
               Documents
             </h3>
           </CardHeader>
           <CardBody className="space-y-3">
             {documents.slice(0, 3).map((doc) => (
-              <div key={doc.id} className="flex items-center gap-3 pb-3 border-b border-abode-border last:border-b-0">
-                <div className="w-8 h-8 rounded bg-abode-bg3 flex items-center justify-center flex-shrink-0">
+              <div key={doc.id} className="flex items-center gap-3 pb-3 border-b border-slate-200 last:border-b-0">
+                <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center flex-shrink-0">
                   <svg
                     width="16"
                     height="16"
@@ -220,20 +220,20 @@ export default function Dashboard() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"
-                    className="text-abode-text2"
+                    className="text-slate-500"
                   >
                     <path d="M2 2h8v12H2V2M6 5h4M6 8h4M6 11h2" />
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-abode-text truncate">
+                  <p className="text-sm font-medium text-slate-900 truncate">
                     {doc.name}
                   </p>
-                  <p className="text-xs text-abode-text3">
+                  <p className="text-xs text-slate-400">
                     {formatDate(doc.created_at)}
                   </p>
                 </div>
-                <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-abode-bg3 text-abode-text2 border border-abode-border flex-shrink-0">
+                <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0">
                   Read
                 </span>
               </div>
@@ -246,13 +246,13 @@ export default function Dashboard() {
       {maintenance && maintenance.length > 0 && (
         <Card>
           <CardHeader>
-            <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+            <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
               Maintenance
             </h3>
           </CardHeader>
           <CardBody className="space-y-3">
             {maintenance.slice(0, 3).map((req) => (
-              <div key={req.id} className="flex gap-3 pb-3 border-b border-abode-border last:border-b-0">
+              <div key={req.id} className="flex gap-3 pb-3 border-b border-slate-200 last:border-b-0">
                 <div className="flex-shrink-0 pt-1">
                   <div
                     className="w-2 h-2 rounded-full"
@@ -260,10 +260,10 @@ export default function Dashboard() {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-abode-text">
+                  <p className="text-sm font-medium text-slate-900">
                     {req.title}
                   </p>
-                  <p className="text-xs text-abode-text3 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     Reported {formatDate(req.created_at)}
                   </p>
                 </div>
@@ -279,7 +279,7 @@ export default function Dashboard() {
             <Link to="/maintenance">
               <Button
                 variant="outline"
-                className="w-full mt-2 border-dashed text-abode-text2 hover:text-abode-text"
+                className="w-full mt-2 border-dashed text-slate-500 hover:text-slate-900"
               >
                 Report a new issue
               </Button>
@@ -292,13 +292,13 @@ export default function Dashboard() {
       {(!maintenance || maintenance.length === 0) && (
         <Card>
           <CardBody className="text-center py-6">
-            <p className="text-sm text-abode-text2 mb-3">
+            <p className="text-sm text-slate-500 mb-3">
               No maintenance issues reported
             </p>
             <Link to="/maintenance">
               <Button
                 variant="outline"
-                className="w-full border-dashed text-abode-text2 hover:text-abode-text"
+                className="w-full border-dashed text-slate-500 hover:text-slate-900"
               >
                 Report a maintenance issue
               </Button>

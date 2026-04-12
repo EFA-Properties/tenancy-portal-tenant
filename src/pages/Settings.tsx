@@ -14,29 +14,29 @@ export default function Settings() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+      <h2 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
         Profile
       </h2>
 
       <Card>
         <CardHeader>
-          <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+          <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
             Account Information
           </h3>
         </CardHeader>
         <CardBody className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-abode-text mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Email Address
             </label>
             <input
               type="email"
               value={user?.email ?? ''}
               disabled
-              className="w-full px-4 py-2 rounded-lg border border-abode-border bg-abode-bg3 text-abode-text2 cursor-not-allowed"
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed"
             />
           </div>
-          <p className="text-xs text-abode-text3">
+          <p className="text-xs text-slate-400">
             Email address cannot be changed. Contact support if you need to
             update it.
           </p>
@@ -45,7 +45,7 @@ export default function Settings() {
 
       <Card>
         <CardHeader>
-          <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+          <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
             Security
           </h3>
         </CardHeader>
@@ -53,7 +53,7 @@ export default function Settings() {
           <Button variant="secondary" className="w-full">
             Change Password
           </Button>
-          <p className="text-xs text-abode-text3">
+          <p className="text-xs text-slate-400">
             Keep your account secure by using a strong, unique password.
           </p>
         </CardBody>
@@ -61,7 +61,7 @@ export default function Settings() {
 
       <Card>
         <CardHeader>
-          <h3 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+          <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
             Preferences
           </h3>
         </CardHeader>
@@ -69,7 +69,7 @@ export default function Settings() {
           <div>
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" defaultChecked className="w-4 h-4" />
-              <span className="text-sm text-abode-text">
+              <span className="text-sm text-slate-900">
                 Email notifications for maintenance updates
               </span>
             </label>
@@ -77,7 +77,7 @@ export default function Settings() {
           <div>
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" defaultChecked className="w-4 h-4" />
-              <span className="text-sm text-abode-text">
+              <span className="text-sm text-slate-900">
                 Email notifications for new documents
               </span>
             </label>
@@ -85,7 +85,7 @@ export default function Settings() {
           <div>
             <label className="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" defaultChecked className="w-4 h-4" />
-              <span className="text-sm text-abode-text">
+              <span className="text-sm text-slate-900">
                 Email notifications for compliance alerts
               </span>
             </label>

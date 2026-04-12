@@ -23,14 +23,14 @@ export default function DocumentsList() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-abode-teal" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+      <h2 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
         Documents
       </h2>
 
@@ -51,11 +51,11 @@ export default function DocumentsList() {
               <div
                 key={doc.id}
                 className={`flex items-center justify-between gap-3 py-3 ${
-                  idx < documents.length - 1 ? 'border-b border-abode-border' : ''
+                  idx < documents.length - 1 ? 'border-b border-slate-200' : ''
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 rounded bg-abode-bg3 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center flex-shrink-0">
                     <svg
                       width="16"
                       height="16"
@@ -63,16 +63,16 @@ export default function DocumentsList() {
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.5"
-                      className="text-abode-text2"
+                      className="text-slate-500"
                     >
                       <path d="M2 2h8v12H2V2M6 5h4M6 8h4M6 11h2" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-abode-text truncate">
+                    <p className="text-sm font-medium text-slate-900 truncate">
                       {doc.name}
                     </p>
-                    <p className="text-xs text-abode-text3">
+                    <p className="text-xs text-slate-400">
                       {new Date(doc.uploaded_at).toLocaleDateString('en-GB')}
                     </p>
                   </div>

@@ -29,21 +29,21 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-abode-bg flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardBody className="p-8">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-abode-teal rounded flex items-center justify-center">
+            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.5">
                 <path d="M2 9l7-7 7 7M4 8v7c0 .5.5 1 1 1h8c.5 0 1-.5 1-1V8" />
               </svg>
             </div>
-            <h1 className="text-2xl font-instrument font-bold text-abode-text">Tenancy Portal</h1>
+            <h1 className="text-2xl font-fraunces font-bold text-slate-900">Tenancy Portal</h1>
           </div>
-          <p className="text-abode-text2 mb-8">Sign in to your account</p>
+          <p className="text-slate-500 mb-8">Sign in to your account</p>
 
           {error && (
-            <div className="mb-4 p-4 bg-abode-red/10 border border-abode-red rounded-lg text-abode-red text-sm">
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
@@ -74,12 +74,12 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-abode-border">
-            <p className="text-abode-text2 text-sm text-center">
+          <div className="mt-6 pt-6 border-t border-slate-200">
+            <p className="text-slate-500 text-sm text-center">
               Don't have an account?{' '}
               <button
                 onClick={() => navigate('/register')}
-                className="text-abode-teal hover:text-abode-text font-medium"
+                className="text-blue-600 hover:text-slate-900 font-medium"
               >
                 Sign up
               </button>

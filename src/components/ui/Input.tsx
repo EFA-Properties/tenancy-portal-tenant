@@ -17,25 +17,25 @@ export function Input({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-abode-text mb-2">
+        <label className="block text-sm font-medium text-slate-900 mb-2">
           {label}
-          {props.required && <span className="text-abode-red ml-1">*</span>}
+          {props.required && <span className="text-red-600 ml-1">*</span>}
         </label>
       )}
       <input
         className={clsx(
           'w-full px-4 py-2 rounded-lg border transition-colors',
-          'focus:outline-none focus:ring-2 focus:ring-abode-teal focus:border-transparent',
+          'focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent',
           error
-            ? 'border-abode-red bg-abode-red/5'
-            : 'border-abode-border bg-abode-bg2 text-abode-text',
+            ? 'border-red-600 bg-red-50'
+            : 'border-slate-200 bg-white text-slate-900',
           className,
         )}
         {...props}
       />
-      {error && <p className="mt-1 text-sm text-abode-red">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       {helperText && !error && (
-        <p className="mt-1 text-sm text-abode-text3">{helperText}</p>
+        <p className="mt-1 text-sm text-slate-400">{helperText}</p>
       )}
     </div>
   )

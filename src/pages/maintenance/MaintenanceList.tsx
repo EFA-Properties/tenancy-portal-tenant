@@ -23,7 +23,7 @@ export default function MaintenanceList() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-abode-teal" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     )
   }
@@ -56,7 +56,7 @@ export default function MaintenanceList() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-mono uppercase tracking-[1px] text-abode-text3">
+      <h2 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
         Maintenance
       </h2>
 
@@ -80,15 +80,15 @@ export default function MaintenanceList() {
               <div
                 key={request.id}
                 className={`py-3 ${
-                  idx < requests.length - 1 ? 'border-b border-abode-border' : ''
+                  idx < requests.length - 1 ? 'border-b border-slate-200' : ''
                 }`}
               >
                 <div className="flex items-start gap-3 mb-2">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-abode-text">
+                    <p className="text-sm font-medium text-slate-900">
                       {request.title}
                     </p>
-                    <p className="text-xs text-abode-text3 mt-1">
+                    <p className="text-xs text-slate-400 mt-1">
                       Reported{' '}
                       {new Date(request.created_at).toLocaleDateString(
                         'en-GB'
