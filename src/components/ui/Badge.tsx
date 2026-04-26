@@ -3,7 +3,7 @@ import clsx from 'clsx'
 
 interface BadgeProps {
   children: React.ReactNode
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success'
+  variant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning'
   size?: 'sm' | 'md'
   className?: string
 }
@@ -23,6 +23,7 @@ export function Badge({
         variant === 'secondary' && 'bg-slate-100 text-slate-500 border border-slate-200',
         variant === 'destructive' && 'bg-red-50 text-red-600 border border-red-200',
         variant === 'success' && 'bg-green-50 text-green-600 border border-green-200',
+        variant === 'warning' && 'bg-amber-50 text-amber-600 border border-amber-200',
         variant === 'outline' && 'border border-slate-200 text-slate-900 bg-white',
         className,
       )}

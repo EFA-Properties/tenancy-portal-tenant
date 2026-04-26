@@ -37,10 +37,11 @@ function MaintenanceIcon() {
   )
 }
 
-function RentIcon() {
+function AgreementsIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M10 2c4.418 0 8 1.791 8 4v8c0 2.209-3.582 4-8 4s-8-1.791-8-4V6c0-2.209 3.582-4 8-4M2 6c0 2.209 3.582 4 8 4s8-1.791 8-4M2 10c0 2.209 3.582 4 8 4s8-1.791 8-4" />
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 3h8l3 3v11a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z" />
+      <path d="M13 3v3h3M8 10l2 2 3-4" />
     </svg>
   )
 }
@@ -62,7 +63,7 @@ export function Layout({ children }: LayoutProps) {
       { id: 'home', label: 'Home', href: '/home', icon: HomeIcon },
       { id: 'documents', label: 'Documents', href: '/documents', icon: DocumentIcon },
       { id: 'maintenance', label: 'Maintenance', href: '/maintenance', icon: MaintenanceIcon },
-      { id: 'rent', label: 'Rent', href: '/rent', icon: RentIcon },
+      { id: 'agreements', label: 'Agreements', href: '/agreements', icon: AgreementsIcon },
       { id: 'profile', label: 'Profile', href: '/profile', icon: ProfileIcon },
     ],
     []

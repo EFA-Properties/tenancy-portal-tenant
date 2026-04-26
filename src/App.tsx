@@ -9,6 +9,8 @@ import Settings from './pages/Settings'
 import DocumentsList from './pages/documents/DocumentsList'
 import MaintenanceList from './pages/maintenance/MaintenanceList'
 import MaintenanceDetail from './pages/maintenance/MaintenanceDetail'
+import AgreementsList from './pages/agreements/AgreementsList'
+import AgreementSign from './pages/agreements/AgreementSign'
 
 export default function App() {
   return (
@@ -58,6 +60,28 @@ export default function App() {
             <ProtectedRoute>
               <Layout>
                 <MaintenanceDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Agreements */}
+        <Route
+          path="/agreements"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AgreementsList />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/agreements/:agreementId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AgreementSign />
               </Layout>
             </ProtectedRoute>
           }
