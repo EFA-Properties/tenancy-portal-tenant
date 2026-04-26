@@ -12,7 +12,7 @@ export function useTenants() {
       const { data, error } = await supabase
         .from('tenants')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('auth_user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (error) throw error
