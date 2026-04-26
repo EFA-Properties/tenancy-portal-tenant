@@ -300,10 +300,26 @@ export interface Tenant {
 export interface Document {
   id: string
   tenancy_id: string
+  property_id: string | null
+  landlord_id: string
+  scope: 'property' | 'tenancy'
+  document_type: string
+  title: string
   name: string
   type: string
+  description: string | null
+  file_path: string
+  file_name: string
+  file_size: number | null
+  mime_type: string | null
   url: string
+  valid_from: string | null
+  valid_to: string | null
   uploaded_at: string
+  uploaded_by: string | null
+  served_at: string | null
+  tenant_opened_at: string | null
+  tenant_confirmed_at: string | null
   created_at: string
 }
 

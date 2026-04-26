@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTenancies } from '../hooks/useTenancies'
@@ -9,10 +9,31 @@ import { useLandlordInfo } from '../hooks/useLandlordInfo'
 import { useAgreements } from '../hooks/useAgreements'
 import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { formatDate, formatDateTime } from '../lib/utils'
+import { supabase } from '../lib/supabase'
+
+const docTypeLabels: Record<string, string> = {
+  ast: 'Tenancy Agreement',
+  epc: 'EPC Certificate',
+  gas_safety: 'Gas Safety Certificate (CP12)',
+  eicr: 'EICR (Electrical Safety)',
+  inventory: 'Inventory & Schedule of Condition',
+  deposit_certificate: 'Deposit Protection Certificate',
+  how_to_rent: 'How to Rent Guide',
+  renter_rights: "Renter's Rights",
+  right_to_rent: 'Right to Rent Check',
+  hmo_licence: 'HMO Licence',
+  emergency_lighting: 'Emergency Lighting Report',
+  fire_risk_assessment: 'Fire Risk Assessment',
+  fire_emergency_procedures: 'Fire & Emergency Procedures',
+  house_rules: 'House Rules / Guidance',
+  other: 'Other Document',
+}
 
 export default function Dashboard() {
   const { user } = useAuth()
   const { data: tenancies, isLoading: tenanciesLoading } = useTenancies()
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
   // Get the first active tenancy (tenant perspective)
   const activeTenancy = useMemo(
@@ -39,16 +60,6 @@ export default function Dashboard() {
   const documentsAwaitingAck = documents?.filter(
     (d) => d.type === 'lease_agreement'
   ) // Assuming lease agreements need ack
-
-  // Format dates
-  const formatDate = (dateStr: string | undefined) => {
-    if (!dateStr) return '-'
-    return new Date(dateStr).toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    })
-  }
 
   // Status pill helper
   const getStatusColor = (status: string) => {
@@ -290,44 +301,90 @@ export default function Dashboard() {
         </CardBody>
       </Card>
 
-      {/* Documents Section */}
+      {/* Documents Table */}
       {documents && documents.length > 0 && (
         <Card>
           <CardHeader>
-            <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
-              Documents
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
+                Your Documents
+              </h3>
+              <Link to="/documents">
+                <span className="text-xs font-medium text-blue-600 hover:text-blue-700">View all</span>
+              </Link>
+            </div>
           </CardHeader>
-          <CardBody className="space-y-3">
-            {documents.slice(0, 3).map((doc) => (
-              <div key={doc.id} className="flex items-center gap-3 pb-3 border-b border-slate-200 last:border-b-0">
-                <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center flex-shrink-0">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    className="text-slate-500"
-                  >
-                    <path d="M2 2h8v12H2V2M6 5h4M6 8h4M6 11h2" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">
-                    {doc.name}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    {formatDate(doc.created_at)}
-                  </p>
-                </div>
-                <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex-shrink-0">
-                  Read
-                </span>
-              </div>
-            ))}
-          </CardBody>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/50">
+                  <th className="text-left px-4 py-2.5 text-[10px] font-mono font-medium text-slate-400 uppercase tracking-widest">Document</th>
+                  <th className="text-left px-4 py-2.5 text-[10px] font-mono font-medium text-slate-400 uppercase tracking-widest">Uploaded</th>
+                  <th className="text-left px-4 py-2.5 text-[10px] font-mono font-medium text-slate-400 uppercase tracking-widest">Accepted</th>
+                  <th className="text-left px-4 py-2.5 text-[10px] font-mono font-medium text-slate-400 uppercase tracking-widest">Valid To</th>
+                  <th className="px-4 py-2.5"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {documents.map((doc) => {
+                  const docTitle = doc.title || docTypeLabels[doc.document_type] || doc.name || doc.file_name || 'Untitled'
+                  const docTypeName = docTypeLabels[doc.document_type] || doc.document_type || doc.type || ''
+
+                  return (
+                    <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-slate-900 truncate">{docTitle}</p>
+                        <span className="text-xs text-slate-400">{docTypeName}</span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap text-xs">
+                        {formatDateTime(doc.uploaded_at || doc.created_at)}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-xs">
+                        {doc.tenant_confirmed_at ? (
+                          <span className="text-green-600 font-medium">{formatDateTime(doc.tenant_confirmed_at)}</span>
+                        ) : (
+                          <span className="text-slate-300">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap text-xs">
+                        {doc.valid_to ? (
+                          <span className={new Date(doc.valid_to) < new Date() ? 'text-red-600 font-medium' : 'text-slate-500'}>
+                            {formatDate(doc.valid_to)}
+                            {new Date(doc.valid_to) < new Date() && ' (expired)'}
+                          </span>
+                        ) : (
+                          <span className="text-slate-300">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={async () => {
+                            setDownloadingId(doc.id)
+                            try {
+                              if (doc.url?.startsWith('http') || doc.file_path?.startsWith('http')) {
+                                window.open(doc.url || doc.file_path, '_blank')
+                              } else if (doc.file_path) {
+                                const bucket = doc.scope === 'property' ? 'property-documents' : 'tenancy-documents'
+                                const { data, error } = await supabase.storage.from(bucket).createSignedUrl(doc.file_path, 3600)
+                                if (!error && data?.signedUrl) window.open(data.signedUrl, '_blank')
+                              }
+                            } finally {
+                              setDownloadingId(null)
+                            }
+                          }}
+                          loading={downloadingId === doc.id}
+                        >
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </Card>
       )}
 
