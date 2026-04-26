@@ -342,6 +342,8 @@ export default function Dashboard() {
                       <td className="px-4 py-3 whitespace-nowrap text-xs">
                         {doc.tenant_confirmed_at ? (
                           <span className="text-green-600 font-medium">{formatDateTime(doc.tenant_confirmed_at)}</span>
+                        ) : doc.served_at ? (
+                          <span className="text-amber-600 font-medium">Pending</span>
                         ) : (
                           <span className="text-slate-300">—</span>
                         )}

@@ -89,6 +89,9 @@ export default function DocumentsList() {
                   } else if (doc.tenant_opened_at) {
                     statusLabel = 'Viewed'
                     statusColor = 'text-blue-600 bg-blue-50'
+                  } else if (doc.served_at) {
+                    statusLabel = 'Pending'
+                    statusColor = 'text-amber-600 bg-amber-50'
                   }
 
                   return (
@@ -103,6 +106,8 @@ export default function DocumentsList() {
                       <td className="px-4 py-3 whitespace-nowrap text-xs">
                         {doc.tenant_confirmed_at ? (
                           <span className="text-green-600 font-medium">{formatDateTime(doc.tenant_confirmed_at)}</span>
+                        ) : doc.served_at ? (
+                          <span className="text-amber-600 font-medium">Pending</span>
                         ) : (
                           <span className="text-slate-300">—</span>
                         )}
