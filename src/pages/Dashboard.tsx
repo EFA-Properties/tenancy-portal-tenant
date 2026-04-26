@@ -6,6 +6,7 @@ import { useDocuments } from '../hooks/useDocuments'
 import { useMaintenanceRequests } from '../hooks/useMaintenanceRequests'
 import { useProperty } from '../hooks/useProperties'
 import { useLandlordInfo } from '../hooks/useLandlordInfo'
+import { useAgreements } from '../hooks/useAgreements'
 import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 
@@ -27,6 +28,12 @@ export default function Dashboard() {
   )
   const { data: maintenance, isLoading: maintenanceLoading } =
     useMaintenanceRequests(activeTenancy?.id)
+  const { data: agreements } = useAgreements(activeTenancy?.id)
+
+  // Agreements awaiting tenant signature
+  const pendingAgreements = agreements?.filter(
+    (a) => a.status === 'sent' || a.status === 'viewed'
+  )
 
   // Check if any documents are awaiting acknowledgement
   const documentsAwaitingAck = documents?.filter(
@@ -96,6 +103,37 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4 pb-4">
+      {/* Agreements Awaiting Signature */}
+      {pendingAgreements && pendingAgreements.length > 0 && (
+        <Card className="border-l-4 border-l-teal-500">
+          <CardHeader className="bg-teal-50 border-b border-slate-200">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-teal-500" />
+              <h3 className="font-fraunces text-sm font-semibold text-slate-900">
+                Agreement{pendingAgreements.length > 1 ? 's' : ''} to Sign
+              </h3>
+            </div>
+          </CardHeader>
+          <CardBody className="space-y-3">
+            {pendingAgreements.map((agreement) => (
+              <div key={agreement.id}>
+                <p className="text-sm font-medium text-slate-900 mb-1">
+                  {agreement.title}
+                </p>
+                <p className="text-xs text-slate-500 mb-3">
+                  Your landlord has sent this for your review and signature.
+                </p>
+                <Link to={`/agreements/${agreement.id}`}>
+                  <Button variant="default" size="sm" className="w-full">
+                    Review & Sign
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      )}
+
       {/* Action Required Section */}
       {documentsAwaitingAck && documentsAwaitingAck.length > 0 && (
         <Card className="border-l-4 border-l-amber-500">
