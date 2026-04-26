@@ -5,6 +5,7 @@ import { useTenancies } from '../hooks/useTenancies'
 import { useDocuments } from '../hooks/useDocuments'
 import { useMaintenanceRequests } from '../hooks/useMaintenanceRequests'
 import { useProperty } from '../hooks/useProperties'
+import { useLandlordInfo } from '../hooks/useLandlordInfo'
 import { Card, CardBody, CardHeader } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 
@@ -18,8 +19,9 @@ export default function Dashboard() {
     [tenancies]
   )
 
-  // Fetch property, documents, and maintenance for the active tenancy
+  // Fetch property, landlord info, documents, and maintenance for the active tenancy
   const { data: property } = useProperty(activeTenancy?.property_id)
+  const { data: landlordInfo } = useLandlordInfo(activeTenancy?.property_id)
   const { data: documents, isLoading: docsLoading } = useDocuments(
     activeTenancy?.id
   )
@@ -119,6 +121,55 @@ export default function Dashboard() {
                 </Button>
               </div>
             ))}
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Landlord Contact */}
+      {landlordInfo && (
+        <Card>
+          <CardBody>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#0f766e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="10" cy="6" r="3" />
+                  <path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-0.5">
+                  Your Landlord
+                </p>
+                <p className="text-sm font-semibold text-slate-900 truncate">
+                  {landlordInfo.full_name}
+                </p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                {landlordInfo.email && (
+                  <a
+                    href={`mailto:${landlordInfo.email}`}
+                    className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                    title="Email landlord"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="16" height="12" rx="1" />
+                      <path d="M2 4l8 6 8-6" />
+                    </svg>
+                  </a>
+                )}
+                {landlordInfo.phone && (
+                  <a
+                    href={`tel:${landlordInfo.phone}`}
+                    className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                    title="Call landlord"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="#475569" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 3h4l2 5-2.5 1.5A11 11 0 0010.5 13.5L12 11l5 2v4a1 1 0 01-1 1A15 15 0 013 3z" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
           </CardBody>
         </Card>
       )}
