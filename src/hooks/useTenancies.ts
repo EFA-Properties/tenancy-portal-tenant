@@ -9,9 +9,30 @@ export function useTenancies() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user')
 
+      // Find the tenant record for this auth user
+      const { data: tenant } = await supabase
+        .from('tenants')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single()
+
+      if (!tenant) return [] as Tenancy[]
+
+      // Get tenancies via the junction table
+      const { data: links, error: linkError } = await supabase
+        .from('tenancy_tenants')
+        .select('tenancy_id')
+        .eq('tenant_id', tenant.id)
+
+      if (linkError) throw linkError
+      if (!links || links.length === 0) return [] as Tenancy[]
+
+      const tenancyIds = links.map((l) => l.tenancy_id)
+
       const { data, error } = await supabase
         .from('tenancies')
-        .select('*')
+        .select('*, properties(*)')
+        .in('id', tenancyIds)
         .order('created_at', { ascending: false })
 
       if (error) throw error
