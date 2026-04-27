@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useInactivityTimeout } from '../hooks/useInactivityTimeout'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -57,6 +58,7 @@ function ProfileIcon() {
 export function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth()
   const location = useLocation()
+  useInactivityTimeout()
 
   const tabs = useMemo(
     () => [

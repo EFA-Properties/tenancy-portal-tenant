@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -7,11 +7,13 @@ import { Card, CardBody } from '../components/ui/Card'
 
 export default function Login() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const inactivityLogout = searchParams.get('reason') === 'inactivity'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,6 +43,12 @@ export default function Login() {
             <h1 className="text-2xl font-fraunces font-bold text-slate-900">Tenancy Portal</h1>
           </div>
           <p className="text-slate-500 mb-8">Sign in to your account</p>
+
+          {inactivityLogout && (
+            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
+              You were signed out due to inactivity. Please sign in again.
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
