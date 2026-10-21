@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardBody } from '../components/ui/Card'
+import { AuthFooter } from '../components/AuthFooter'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -31,7 +32,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardBody className="p-8">
           <div className="flex items-center gap-2 mb-2">
@@ -95,6 +96,7 @@ export default function Login() {
           </div>
         </CardBody>
       </Card>
+      <AuthFooter />
     </div>
   )
 }
