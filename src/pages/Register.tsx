@@ -20,7 +20,7 @@ export default function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [inviteLoading, setInviteLoading] = useState(!!inviteToken)
-  const [inviteTenantId, setInviteTenantId] = useState<string | null>(null)
+  const [inviteValid, setInviteValid] = useState(false)
   const [propertyAddress, setPropertyAddress] = useState<string | null>(null)
   const [landlordName, setLandlordName] = useState<string | null>(null)
 
@@ -31,47 +31,29 @@ export default function Register() {
     const lookupInvite = async () => {
       setInviteLoading(true)
       try {
-        // Find the tenant record by invite_token
-        const { data: tenant, error: tenantError } = await supabase
-          .from('tenants')
-          .select('id, full_name, email, invite_status')
-          .eq('invite_token', inviteToken)
-          .single()
+        // Look up the invite by its token (database function, only returns the matching invite)
+        const { data, error: inviteError } = await supabase
+          .rpc('get_tenant_invite', { p_token: inviteToken })
+        const invite = Array.isArray(data) ? data[0] : data
 
-        if (tenantError || !tenant) {
+        if (inviteError || !invite) {
           setError('This invitation link is invalid or has expired.')
           setInviteLoading(false)
           return
         }
 
-        if (tenant.invite_status === 'registered') {
+        if (invite.invite_status === 'registered') {
           setError('This invitation has already been used. Please sign in instead.')
           setInviteLoading(false)
           return
         }
 
         // Pre-fill the form
-        setInviteTenantId(tenant.id)
-        setFullName(tenant.full_name || '')
-        setEmail(tenant.email || '')
-
-        // Try to get property address from tenancy
-        const { data: tenancyTenant } = await supabase
-          .from('tenancy_tenants')
-          .select('tenancies(property_id, properties(address_line1, town), landlord_id, landlords(full_name))')
-          .eq('tenant_id', tenant.id)
-          .limit(1)
-          .single()
-
-        if (tenancyTenant?.tenancies) {
-          const t = tenancyTenant.tenancies as any
-          if (t.properties) {
-            setPropertyAddress(`${t.properties.address_line1}, ${t.properties.town}`)
-          }
-          if (t.landlords) {
-            setLandlordName(t.landlords.full_name)
-          }
-        }
+        setInviteValid(true)
+        setFullName(invite.full_name || '')
+        setEmail(invite.email || '')
+        if (invite.property_address) setPropertyAddress(invite.property_address)
+        if (invite.landlord_name) setLandlordName(invite.landlord_name)
       } catch (err) {
         console.error('Invite lookup error:', err)
         setError('Could not load invitation details.')
@@ -102,18 +84,9 @@ export default function Register() {
     try {
       await register(email, password, fullName)
 
-      // If this was an invite registration, link the tenant record
-      if (inviteTenantId) {
-        const { data: { user: newUser } } = await supabase.auth.getUser()
-        if (newUser) {
-          await supabase
-            .from('tenants')
-            .update({
-              auth_user_id: newUser.id,
-              invite_status: 'registered',
-            })
-            .eq('id', inviteTenantId)
-        }
+      // If this was an invite registration, link the tenant record to the new account
+      if (inviteValid) {
+        await supabase.rpc('claim_tenant_invite', { p_token: inviteToken })
       }
 
       navigate('/home')
@@ -173,7 +146,7 @@ export default function Register() {
               onChange={(e) => setFullName(e.target.value)}
               required
               placeholder="John Doe"
-              disabled={!!inviteTenantId}
+              disabled={inviteValid}
             />
             <Input
               label="Email"
@@ -182,7 +155,7 @@ export default function Register() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="name@example.com"
-              disabled={!!inviteTenantId}
+              disabled={inviteValid}
             />
             <Input
               label="Password"
