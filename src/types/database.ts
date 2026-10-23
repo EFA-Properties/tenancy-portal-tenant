@@ -262,6 +262,9 @@ export interface Property {
   user_id: string
   name: string
   address: string
+  address_line1?: string | null
+  address_line2?: string | null
+  town?: string | null
   city: string
   postcode: string
   property_type: string
@@ -320,6 +323,8 @@ export interface Document {
   served_at: string | null
   tenant_opened_at: string | null
   tenant_confirmed_at: string | null
+  requires_acknowledgement?: boolean | null
+  tenant_visible?: boolean | null
   created_at: string
 }
 

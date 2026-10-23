@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTenancies } from '../hooks/useTenancies'
-import { useDocuments } from '../hooks/useDocuments'
+import { useDocuments, useMyAcknowledgements, useRecordDocument } from '../hooks/useDocuments'
 import { useMaintenanceRequests } from '../hooks/useMaintenanceRequests'
 import { useProperty } from '../hooks/useProperties'
 import { useLandlordInfo } from '../hooks/useLandlordInfo'
@@ -34,6 +34,8 @@ export default function Dashboard() {
   const { user } = useAuth()
   const { data: tenancies, isLoading: tenanciesLoading } = useTenancies()
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [openedIds, setOpenedIds] = useState<string[]>([])
+  const [confirmError, setConfirmError] = useState<string | null>(null)
 
   // Get the first active tenancy (tenant perspective)
   const activeTenancy = useMemo(
@@ -42,7 +44,8 @@ export default function Dashboard() {
   )
 
   // Fetch property, landlord info, documents, and maintenance for the active tenancy
-  const { data: property } = useProperty(activeTenancy?.property_id)
+  const { data: fetchedProperty, isLoading: propertyLoading } = useProperty(activeTenancy?.property_id)
+  const property = fetchedProperty || (activeTenancy as any)?.properties
   const { data: landlordInfo } = useLandlordInfo(activeTenancy?.property_id)
   const { data: documents, isLoading: docsLoading } = useDocuments(
     activeTenancy?.id,
@@ -57,10 +60,51 @@ export default function Dashboard() {
     (a) => a.status === 'sent' || a.status === 'viewed'
   )
 
-  // Check if any documents are awaiting acknowledgement
+  // Documents this tenant still needs to open and confirm receiving
+  const { data: acknowledgements } = useMyAcknowledgements()
+  const recordDocument = useRecordDocument()
+  const acknowledgedAt = useMemo(() => {
+    const map: Record<string, string> = {}
+    acknowledgements?.forEach((a) => { map[a.document_id] = a.acknowledged_at })
+    return map
+  }, [acknowledgements])
   const documentsAwaitingAck = documents?.filter(
-    (d) => d.type === 'lease_agreement'
-  ) // Assuming lease agreements need ack
+    (d) => d.requires_acknowledgement !== false && !acknowledgedAt[d.id]
+  )
+
+  const openDocument = async (doc: NonNullable<typeof documents>[number]) => {
+    setDownloadingId(doc.id)
+    // Open a blank tab straight away so phone browsers don't block it
+    const tab = window.open('', '_blank')
+    try {
+      let url: string | null = null
+      if (doc.url?.startsWith('http') || doc.file_path?.startsWith('http')) {
+        url = doc.url || doc.file_path
+      } else if (doc.file_path) {
+        const bucket = doc.scope === 'property' ? 'property-documents' : 'tenancy-documents'
+        const { data, error } = await supabase.storage.from(bucket).createSignedUrl(doc.file_path, 3600)
+        if (!error && data?.signedUrl) url = data.signedUrl
+      }
+      if (url) {
+        if (tab) tab.location.href = url
+        else window.open(url, '_blank')
+        setOpenedIds((ids) => (ids.includes(doc.id) ? ids : [...ids, doc.id]))
+        recordDocument.mutate({ documentId: doc.id, action: 'opened' })
+      } else {
+        tab?.close()
+      }
+    } finally {
+      setDownloadingId(null)
+    }
+  }
+
+  const confirmDocument = (documentId: string) => {
+    setConfirmError(null)
+    recordDocument.mutate(
+      { documentId, action: 'confirmed' },
+      { onError: () => setConfirmError('Sorry, that did not save. Please try again.') }
+    )
+  }
 
   // Status pill helper
   const getStatusColor = (status: string) => {
@@ -91,7 +135,7 @@ export default function Dashboard() {
     }
   }
 
-  if (tenanciesLoading) {
+  if (tenanciesLoading || (activeTenancy && propertyLoading && !property)) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-slate-400">Loading your home...</p>
@@ -146,31 +190,53 @@ export default function Dashboard() {
         </Card>
       )}
 
-      {/* Action Required Section */}
+      {/* Documents to read and confirm */}
       {documentsAwaitingAck && documentsAwaitingAck.length > 0 && (
         <Card className="border-l-4 border-l-amber-500">
           <CardHeader className="bg-amber-50 border-b border-slate-200">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-amber-500" />
               <h3 className="font-fraunces text-sm font-semibold text-slate-900">
-                Action Required
+                Documents to read and confirm ({documentsAwaitingAck.length})
               </h3>
             </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Your landlord has shared these documents with you. Please open each one, read it, then confirm you have received it.
+            </p>
           </CardHeader>
-          <CardBody className="space-y-3">
-            {documentsAwaitingAck.map((doc) => (
-              <div key={doc.id}>
-                <p className="text-sm font-medium text-slate-900 mb-1">
-                  {doc.name}
-                </p>
-                <p className="text-xs text-slate-500 mb-3">
-                  Please review and confirm you have received this document.
-                </p>
-                <Button variant="default" size="sm" className="w-full">
-                  I confirm I have received this document
-                </Button>
-              </div>
-            ))}
+          <CardBody className="space-y-4">
+            {confirmError && <p className="text-xs text-red-600">{confirmError}</p>}
+            {documentsAwaitingAck.map((doc) => {
+              const opened = openedIds.includes(doc.id)
+              return (
+                <div key={doc.id} className="pb-4 border-b border-slate-200 last:border-b-0 last:pb-0">
+                  <p className="text-sm font-medium text-slate-900 mb-3">
+                    {doc.title || docTypeLabels[doc.document_type] || doc.file_name || 'Document'}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openDocument(doc)}
+                      loading={downloadingId === doc.id}
+                    >
+                      {opened ? 'Open again' : 'Open document'}
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      disabled={!opened || recordDocument.isPending}
+                      onClick={() => confirmDocument(doc.id)}
+                    >
+                      I have received and read this
+                    </Button>
+                  </div>
+                  {!opened && (
+                    <p className="text-[11px] text-slate-400 mt-2">Open the document first to confirm.</p>
+                  )}
+                </div>
+              )
+            })}
           </CardBody>
         </Card>
       )}
@@ -233,7 +299,8 @@ export default function Dashboard() {
             </span>
           </div>
           <h2 className="font-fraunces text-lg font-semibold">
-            {property.address}
+            {property.address_line1 || property.address}
+            {property.town ? `, ${property.town}` : ''}
           </h2>
           <p className="text-sm opacity-90">{property.postcode}</p>
         </CardHeader>
@@ -341,10 +408,10 @@ export default function Dashboard() {
                         {formatDateTime(doc.uploaded_at || doc.created_at)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-xs">
-                        {doc.tenant_confirmed_at ? (
-                          <span className="text-green-600 font-medium">{formatDateTime(doc.tenant_confirmed_at)}</span>
-                        ) : doc.served_at ? (
-                          <span className="text-amber-600 font-medium">Pending</span>
+                        {acknowledgedAt[doc.id] ? (
+                          <span className="text-green-600 font-medium">{formatDateTime(acknowledgedAt[doc.id])}</span>
+                        ) : doc.requires_acknowledgement !== false ? (
+                          <span className="text-amber-600 font-medium">To confirm</span>
                         ) : (
                           <span className="text-slate-300">—</span>
                         )}
@@ -363,20 +430,7 @@ export default function Dashboard() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={async () => {
-                            setDownloadingId(doc.id)
-                            try {
-                              if (doc.url?.startsWith('http') || doc.file_path?.startsWith('http')) {
-                                window.open(doc.url || doc.file_path, '_blank')
-                              } else if (doc.file_path) {
-                                const bucket = doc.scope === 'property' ? 'property-documents' : 'tenancy-documents'
-                                const { data, error } = await supabase.storage.from(bucket).createSignedUrl(doc.file_path, 3600)
-                                if (!error && data?.signedUrl) window.open(data.signedUrl, '_blank')
-                              }
-                            } finally {
-                              setDownloadingId(null)
-                            }
-                          }}
+                          onClick={() => openDocument(doc)}
                           loading={downloadingId === doc.id}
                         >
                           View

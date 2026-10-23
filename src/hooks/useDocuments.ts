@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import type { Document } from '../types/database'
 
@@ -42,5 +42,41 @@ export function useDocument(documentId: string | undefined) {
       return data as Document
     },
     enabled: !!documentId,
+  })
+}
+
+// Documents this tenant has already confirmed receiving
+export function useMyAcknowledgements() {
+  return useQuery({
+    queryKey: ['document_acknowledgements'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('document_acknowledgements')
+        .select('document_id, acknowledged_at')
+
+      if (error) throw error
+      return (data || []) as { document_id: string; acknowledged_at: string }[]
+    },
+  })
+}
+
+// Records that the tenant opened, or confirmed receipt of, a document
+export function useRecordDocument() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ documentId, action }: { documentId: string; action: 'opened' | 'confirmed' }) => {
+      const { data, error } = await supabase.rpc('tenant_record_document', {
+        p_document_id: documentId,
+        p_action: action,
+        p_user_agent: navigator.userAgent,
+      })
+      if (error) throw error
+      if (!data) throw new Error('Could not record this document')
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+      queryClient.invalidateQueries({ queryKey: ['document_acknowledgements'] })
+    },
   })
 }
