@@ -36,7 +36,7 @@ export default function DocumentsList() {
     [tenancies]
   )
 
-  const { data: documents = [], isLoading } = useDocuments(activeTenancy?.id)
+  const { data: documents = [], isLoading } = useDocuments(activeTenancy?.id, activeTenancy?.property_id)
 
   if (isLoading) {
     return (
