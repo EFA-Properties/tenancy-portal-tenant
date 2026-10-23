@@ -36,7 +36,7 @@ export default function UploadDocument() {
   }
 
   const docTypes = [
-    { value: 'ast', label: 'Assured Shorthold Tenancy' },
+    { value: 'ast', label: 'Assured Periodic Tenancy Agreement / Written Statement of Terms' },
     { value: 'deposit', label: 'Deposit Certificate' },
     { value: 'epc', label: 'Energy Performance Certificate' },
     { value: 'inventory', label: 'Inventory' },
