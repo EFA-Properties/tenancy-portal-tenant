@@ -45,7 +45,8 @@ export default function Dashboard() {
   const { data: property } = useProperty(activeTenancy?.property_id)
   const { data: landlordInfo } = useLandlordInfo(activeTenancy?.property_id)
   const { data: documents, isLoading: docsLoading } = useDocuments(
-    activeTenancy?.id
+    activeTenancy?.id,
+    activeTenancy?.property_id
   )
   const { data: maintenance, isLoading: maintenanceLoading } =
     useMaintenanceRequests(activeTenancy?.id)

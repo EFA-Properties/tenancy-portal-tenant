@@ -2,20 +2,25 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import type { Document } from '../types/database'
 
-export function useDocuments(tenancyId: string | undefined) {
+export function useDocuments(tenancyId: string | undefined, propertyId?: string) {
   return useQuery({
-    queryKey: ['documents', tenancyId],
+    queryKey: ['documents', tenancyId, propertyId],
     queryFn: async () => {
       if (!tenancyId) throw new Error('No tenancy ID')
+
+      // Documents for this tenancy plus the property-wide ones (gas safety, EPC, etc.)
+      const scopeFilter = propertyId
+        ? `tenancy_id.eq.${tenancyId},property_id.eq.${propertyId}`
+        : `tenancy_id.eq.${tenancyId}`
 
       const { data, error } = await supabase
         .from('documents')
         .select('*')
-        .eq('tenancy_id', tenancyId)
-        .order('created_at', { ascending: false })
+        .or(scopeFilter)
+        .order('uploaded_at', { ascending: false })
 
       if (error) throw error
-      return data as Document[]
+      return (data || []).filter((d: any) => d.tenant_visible !== false) as Document[]
     },
     enabled: !!tenancyId,
   })
