@@ -322,69 +322,17 @@ export default function Dashboard() {
           <p className="text-sm opacity-90">{property.postcode}</p>
         </CardHeader>
         <CardBody>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
-                Monthly Rent
-              </p>
-              <p className="font-fraunces text-2xl font-semibold text-slate-900">
-                £{activeTenancy.monthly_rent.toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
-                Move-In Date
-              </p>
-              <p className="text-sm font-medium text-slate-900">
-                {formatDate(activeTenancy.start_date)}
-              </p>
-            </div>
+          <div>
+            <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
+              Move-In Date
+            </p>
+            <p className="text-sm font-medium text-slate-900">
+              {formatDate(activeTenancy.start_date)}
+            </p>
           </div>
         </CardBody>
       </Card>
 
-      {/* Rent Section */}
-      <Card>
-        <CardHeader>
-          <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
-            Rent Payment
-          </h3>
-        </CardHeader>
-        <CardBody className="space-y-4">
-          <div className="flex items-baseline justify-between">
-            <span className="text-slate-500">Amount due</span>
-            <span className="font-fraunces text-3xl font-semibold text-slate-900">
-              £{activeTenancy.monthly_rent}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-500">Payment status</span>
-            <span className="text-xs font-mono uppercase tracking-[1px] px-2 py-1 rounded-full bg-green-50 text-green-600 border border-green-200">
-              Up to date
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
-            <div>
-              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
-                Deposit
-              </p>
-              <p className="font-medium text-slate-900">
-                £{activeTenancy.monthly_rent * 5}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 font-mono uppercase tracking-[1px] mb-1">
-                Next due
-              </p>
-              <p className="font-medium text-slate-900">
-                {formatDate(
-                  new Date(activeTenancy.start_date).toISOString()
-                )}
-              </p>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
 
       {/* Documents Table */}
       {documents && documents.length > 0 && (

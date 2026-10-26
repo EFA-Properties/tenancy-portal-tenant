@@ -87,18 +87,6 @@ export default function App() {
           }
         />
 
-        {/* Rent details page - TODO */}
-        <Route
-          path="/rent"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <div className="text-slate-900">Rent details coming soon</div>
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
         {/* Profile / Settings */}
         <Route
           path="/profile"
