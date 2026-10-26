@@ -34,7 +34,16 @@ export default function Dashboard() {
   const { user } = useAuth()
   const { data: tenancies, isLoading: tenanciesLoading } = useTenancies()
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
-  const [openedIds, setOpenedIds] = useState<string[]>([])
+  // Remember opened documents across reloads (phones often reload the page
+  // after the tenant comes back from the document tab)
+  const openedKey = `opened-docs-${user?.id ?? ''}`
+  const [openedIds, setOpenedIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(openedKey) || '[]')
+    } catch {
+      return []
+    }
+  })
   const [confirmError, setConfirmError] = useState<string | null>(null)
 
   // Get the first active tenancy (tenant perspective)
@@ -88,7 +97,15 @@ export default function Dashboard() {
       if (url) {
         if (tab) tab.location.href = url
         else window.open(url, '_blank')
-        setOpenedIds((ids) => (ids.includes(doc.id) ? ids : [...ids, doc.id]))
+        setOpenedIds((ids) => {
+          const next = ids.includes(doc.id) ? ids : [...ids, doc.id]
+          try {
+            localStorage.setItem(openedKey, JSON.stringify(next))
+          } catch {
+            // Storage unavailable; the opened time saved on the document still counts
+          }
+          return next
+        })
         recordDocument.mutate({ documentId: doc.id, action: 'opened' })
       } else {
         tab?.close()
@@ -207,7 +224,7 @@ export default function Dashboard() {
           <CardBody className="space-y-4">
             {confirmError && <p className="text-xs text-red-600">{confirmError}</p>}
             {documentsAwaitingAck.map((doc) => {
-              const opened = openedIds.includes(doc.id)
+              const opened = openedIds.includes(doc.id) || !!doc.tenant_opened_at
               return (
                 <div key={doc.id} className="pb-4 border-b border-slate-200 last:border-b-0 last:pb-0">
                   <p className="text-sm font-medium text-slate-900 mb-3">
