@@ -82,7 +82,8 @@ export function Layout({ children }: LayoutProps) {
       {/* Sticky Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200 px-4 py-3 shrink-0">
         {/* Logo and greeting */}
-        <div className="max-w-[430px] mx-auto">
+        <div className="max-w-[430px] md:max-w-3xl lg:max-w-5xl mx-auto md:flex md:items-end md:justify-between md:gap-6">
+          <div>
           <div className="flex items-center gap-2 mb-3">
             {/* Logo - blue square with house icon */}
             <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center shrink-0">
@@ -98,18 +99,39 @@ export function Layout({ children }: LayoutProps) {
           <p className="text-xs text-slate-400 font-mono uppercase tracking-[1.5px]">
             Your home dashboard
           </p>
+          </div>
+
+          {/* Desktop navigation (phones use the bottom bar) */}
+          <nav className="hidden md:flex items-center gap-1 mr-14">
+            {tabs.map((tab) => {
+              const TabIcon = tab.icon
+              const isActive = activeTab === tab.id
+              return (
+                <Link
+                  key={tab.id}
+                  to={tab.href}
+                  className={`flex items-center gap-2 py-2 px-3 rounded-lg transition-colors ${
+                    isActive ? 'text-blue-600 bg-blue-50' : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  <TabIcon />
+                  <span className="text-xs font-mono font-medium tracking-[0.5px]">{tab.label}</span>
+                </Link>
+              )
+            })}
+          </nav>
         </div>
       </header>
 
       {/* Scrollable Content Area */}
-      <main className="flex-1 overflow-y-auto px-4 pb-24 pt-4 scroll-area">
-        <div className="max-w-[430px] mx-auto">
+      <main className="flex-1 overflow-y-auto px-4 md:px-8 pb-24 md:pb-8 pt-4 md:pt-6 scroll-area">
+        <div className="max-w-[430px] md:max-w-3xl lg:max-w-5xl mx-auto">
           {children}
         </div>
       </main>
 
       {/* Sticky Bottom Navigation */}
-      <nav className="sticky bottom-0 z-40 bg-white border-t border-slate-200 px-4 py-2 shrink-0">
+      <nav className="md:hidden sticky bottom-0 z-40 bg-white border-t border-slate-200 px-4 py-2 shrink-0">
         <div className="max-w-[430px] mx-auto flex items-center justify-around gap-1">
           {tabs.map((tab) => {
             const TabIcon = tab.icon

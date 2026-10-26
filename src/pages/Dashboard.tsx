@@ -175,10 +175,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pb-4">
       {/* Agreements Awaiting Signature */}
       {pendingAgreements && pendingAgreements.length > 0 && (
-        <Card className="border-l-4 border-l-teal-500">
+        <Card className="lg:col-span-2 border-l-4 border-l-teal-500">
           <CardHeader className="bg-teal-50 border-b border-slate-200">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-teal-500" />
@@ -209,7 +209,7 @@ export default function Dashboard() {
 
       {/* Documents to read and confirm */}
       {documentsAwaitingAck && documentsAwaitingAck.length > 0 && (
-        <Card className="border-l-4 border-l-amber-500">
+        <Card className="lg:col-span-2 border-l-4 border-l-amber-500">
           <CardHeader className="bg-amber-50 border-b border-slate-200">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-amber-500" />
@@ -260,7 +260,7 @@ export default function Dashboard() {
 
       {/* Landlord Contact */}
       {landlordInfo && (
-        <Card>
+        <Card className="lg:col-span-2">
           <CardBody>
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
@@ -388,7 +388,7 @@ export default function Dashboard() {
 
       {/* Documents Table */}
       {documents && documents.length > 0 && (
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
@@ -464,7 +464,7 @@ export default function Dashboard() {
 
       {/* Maintenance Section */}
       {maintenance && maintenance.length > 0 && (
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <h3 className="text-sm font-mono uppercase tracking-[1px] text-slate-400">
               Maintenance
@@ -510,7 +510,7 @@ export default function Dashboard() {
 
       {/* Empty state for maintenance */}
       {(!maintenance || maintenance.length === 0) && (
-        <Card>
+        <Card className="lg:col-span-2">
           <CardBody className="text-center py-6">
             <p className="text-sm text-slate-500 mb-3">
               No maintenance issues reported
