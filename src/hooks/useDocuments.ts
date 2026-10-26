@@ -52,10 +52,11 @@ export function useMyAcknowledgements() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('document_acknowledgements')
-        .select('document_id, acknowledged_at')
+        .select('document_id, confirmed_at, receipt_file_path')
+        .not('confirmed_at', 'is', null)
 
       if (error) throw error
-      return (data || []) as { document_id: string; acknowledged_at: string }[]
+      return (data || []) as { document_id: string; confirmed_at: string; receipt_file_path: string | null }[]
     },
   })
 }
@@ -65,6 +66,15 @@ export function useRecordDocument() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ documentId, action }: { documentId: string; action: 'opened' | 'confirmed' }) => {
+      if (action === 'confirmed') {
+        // The server records the confirmation and makes the stamped, signed copy
+        const { data, error } = await supabase.functions.invoke('confirm-document', {
+          body: { document_id: documentId },
+        })
+        if (error) throw error
+        if (!data?.ok) throw new Error(data?.error || 'Could not record this document')
+        return data
+      }
       const { data, error } = await supabase.rpc('tenant_record_document', {
         p_document_id: documentId,
         p_action: action,

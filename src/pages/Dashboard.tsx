@@ -74,7 +74,7 @@ export default function Dashboard() {
   const recordDocument = useRecordDocument()
   const acknowledgedAt = useMemo(() => {
     const map: Record<string, string> = {}
-    acknowledgements?.forEach((a) => { map[a.document_id] = a.acknowledged_at })
+    acknowledgements?.forEach((a) => { map[a.document_id] = a.confirmed_at })
     return map
   }, [acknowledgements])
   const documentsAwaitingAck = documents?.filter(
