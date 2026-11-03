@@ -264,7 +264,7 @@ export default function Dashboard() {
           <CardBody>
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#0f766e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#642E3D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="10" cy="6" r="3" />
                   <path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6" />
                 </svg>

@@ -7,18 +7,20 @@ html {
 }
 
 body {
-  background-color: rgb(248, 250, 252);
-  color: rgb(15, 23, 42);
-  font-family: 'DM Sans', sans-serif;
+  background-color: #F5F0E7;
+  color: #302D2E;
+  font-family: 'Manrope', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  color: rgb(37, 99, 235);
+  color: #642E3D;
   transition: color 0.2s;
 }
 
 a:hover {
-  color: rgb(15, 23, 42);
+  color: #4f2330;
 }
 
 button:disabled {
