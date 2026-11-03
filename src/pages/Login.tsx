@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardBody } from '../components/ui/Card'
+import { BrandLogo } from '../components/BrandLogo'
 import { AuthFooter } from '../components/AuthFooter'
 
 export default function Login() {
@@ -32,17 +33,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="brand-auth min-h-screen bg-brand-oat flex flex-col items-center justify-center p-4">
+      <Card className="!bg-brand-card !border-2 !border-brand-rose !shadow-none w-full max-w-md">
         <CardBody className="p-8">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.5">
-                <path d="M2 9l7-7 7 7M4 8v7c0 .5.5 1 1 1h8c.5 0 1-.5 1-1V8" />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-fraunces font-bold text-slate-900">Tenancy Portal</h1>
-          </div>
+          <BrandLogo className="justify-center mb-8" />
           <p className="text-slate-500 mb-8">Sign in to your account</p>
 
           {inactivityLogout && (
@@ -88,7 +82,7 @@ export default function Login() {
               Don't have an account?{' '}
               <button
                 onClick={() => navigate('/register')}
-                className="text-blue-600 hover:text-slate-900 font-medium"
+                className="text-brand hover:text-brand-dark font-medium"
               >
                 Sign up
               </button>

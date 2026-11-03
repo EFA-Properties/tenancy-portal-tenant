@@ -1,3 +1,4 @@
+import { BrandLogo } from './BrandLogo'
 import React, { useMemo } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -85,15 +86,9 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-[430px] md:max-w-3xl lg:max-w-5xl mx-auto md:flex md:items-end md:justify-between md:gap-6">
           <div>
           <div className="flex items-center gap-2 mb-3">
-            {/* Logo - blue square with house icon */}
-            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center shrink-0">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" strokeWidth="1.5">
-                <path d="M2 9l7-7 7 7M4 8v7c0 .5.5 1 1 1h8c.5 0 1-.5 1-1V8" />
-              </svg>
-            </div>
-            <span className="text-sm font-fraunces text-slate-900 font-semibold">Tenancy Portal</span>
+            <BrandLogo className="[&_svg]:w-7 [&_svg]:h-7 [&_span]:text-[18px]" />
           </div>
-          <p className="font-fraunces italic text-slate-900 text-sm mb-1">
+          <p className="font-semibold text-slate-900 text-sm mb-1">
             {getGreeting()}, {firstName}
           </p>
           <p className="text-xs text-slate-400 font-mono uppercase tracking-[1.5px]">
